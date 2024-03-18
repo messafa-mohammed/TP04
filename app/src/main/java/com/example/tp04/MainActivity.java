@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
     private DatabaseHelper dbHelper;
+    Integer index = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,6 +26,8 @@ public class MainActivity extends AppCompatActivity {
         TextView sizeView = findViewById(R.id.sizeofdb);
         Button getSize = findViewById(R.id.database_size);
         Button deleteAll = findViewById(R.id.delete);
+
+
 
         dbHelper = new DatabaseHelper(this);
         dbHelper.insertData("Mouaadh",  "stuv1617");
@@ -40,17 +43,27 @@ public class MainActivity extends AppCompatActivity {
         getRowButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(cursor.moveToNext()) {
+                if(cursor.moveToNext() && dbHelper.dbSize() != 0) {
                     String id = cursor.getString(cursor.getColumnIndexOrThrow("_id"));
                     String nom = cursor.getString(cursor.getColumnIndexOrThrow("v_username"));
                     String prenom = cursor.getString(cursor.getColumnIndexOrThrow("v_password"));
-                    String email = cursor.getString(cursor.getColumnIndexOrThrow("v_email"));
-                    String phone = cursor.getString(cursor.getColumnIndexOrThrow("v_phone"));
-                    idView.setText(id);
+                    index+=1;
+                    idView.setText(Integer.toString(index));
                     nomInput.setText(nom);
                     prenomInput.setText(prenom);
 
-                }else{
+                } else if (dbHelper.dbSize() != 0) {
+                    cursor.moveToFirst();
+                    index=1;
+                    idView.setText(Integer.toString(index));
+                    String id = cursor.getString(cursor.getColumnIndexOrThrow("_id"));
+                    String nom = cursor.getString(cursor.getColumnIndexOrThrow("v_username"));
+                    String prenom = cursor.getString(cursor.getColumnIndexOrThrow("v_password"));
+
+                    nomInput.setText(nom);
+                    prenomInput.setText(prenom);
+                    Toast.makeText(MainActivity.this, "We're back to the beginning", Toast.LENGTH_SHORT).show();
+                } else{
                     Toast.makeText(MainActivity.this, "Your Database is empty", Toast.LENGTH_SHORT).show();
                 }
 
@@ -69,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
                     dbHelper.insertData(newNom,newPrenom);
                     nomInput.setText("");
                     prenomInput.setText("");
+
                     Toast.makeText(MainActivity.this, "Insert Data successfully", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -85,7 +99,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 dbHelper.deleteAllData();
-                Toast.makeText(MainActivity.this, "Database is empty", Toast.LENGTH_SHORT).show();
+                nomInput.setText("");
+                prenomInput.setText("");
+                index=0;
+                idView.setText("");
+                Toast.makeText(MainActivity.this, "Database is empty Now", Toast.LENGTH_SHORT).show();
             }
         });
     }
